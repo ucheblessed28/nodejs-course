@@ -134,6 +134,71 @@ server.listen(PORT, () => {
 
 ---
 
+The code `if (err.code === "ENOENT")` is a way to check for a specific type of error that might occur when working with the filesystem using Node.js. Let’s break it down:
+
+---
+
+### **1. What is `err.code`?**
+- When you use file system operations like `fs.readFile`, errors may occur (e.g., if the file doesn't exist or there are permission issues).
+- If an error happens, the callback function is passed an `err` object.
+- The `err.code` property provides a specific string identifying the type of error.
+
+---
+
+### **2. What does `"ENOENT"` mean?**
+- `"ENOENT"` stands for **"Error NO ENTry"**.
+- It indicates that the file or directory you are trying to access does not exist.
+  - For example, if you attempt to read `nonexistent.html`, the error object will have `err.code` set to `"ENOENT"`.
+
+---
+
+### **3. Why Check for `"ENOENT"`?**
+- When handling errors, you might want to perform specific actions based on the type of error.
+- By checking `if (err.code === "ENOENT")`, you can specifically handle cases where the requested file is not found.
+
+---
+
+### **4. Example Usage in Context**
+
+Here’s how it fits into a server:
+
+```javascript
+fs.readFile(filePath, 'utf8', (err, content) => {
+    if (err) {
+        if (err.code === "ENOENT") {
+            // Handle the "file not found" error
+            res.writeHead(404, { 'Content-Type': 'text/html' });
+            res.end('<h1>404 - File Not Found</h1>');
+        } else {
+            // Handle other types of errors
+            res.writeHead(500, { 'Content-Type': 'text/html' });
+            res.end('<h1>500 - Internal Server Error</h1>');
+        }
+        return;
+    }
+
+    // File was successfully read, send its content
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(content);
+});
+```
+
+#### Explanation:
+1. **`if (err.code === "ENOENT")`:**
+   - Specifically handles the case where the file doesn't exist.
+   - Responds with a `404` status code and a "File Not Found" message.
+
+2. **`else`:**
+   - Handles other unexpected errors (e.g., permission denied or corrupted file).
+   - Responds with a `500` status code and an "Internal Server Error" message.
+
+---
+
+### **5. Key Takeaway**
+By checking `err.code`, you can implement precise error handling for different scenarios. The `"ENOENT"` code is one of the most common errors you’ll encounter when working with files, and handling it appropriately improves user experience and server reliability. 
+
+---
+
 ### **Challenge for You**
 1. Create an additional HTML file named `about.html` with a simple "About Us" page.
 2. Modify the server to serve:
