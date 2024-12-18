@@ -16,3 +16,12 @@ console.log('Operating System Version:', os.release());
 // Get the total and free memory
 console.log('Total memory:', os.totalmem());
 console.log('Free memory:', os.freemem());
+
+// Get CPU details
+console.log('CPU Details:', os.cpus());
+
+// Get Home Directory
+console.log('Home Directory:', os.homedir());
+
+// Get the Temp Directory
+console.log('Temp Directory:', os.tmpdir());
