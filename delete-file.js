@@ -8,4 +8,4 @@ fs.unlink('note.txt', (err) => {
         return;
     }
     console.log('File deleted successfully');
-})
+});
