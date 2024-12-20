@@ -205,3 +205,172 @@ By checking `err.code`, you can implement precise error handling for different s
    - `index.html` for `/`
    - `about.html` for `/about`
    - A `404 Not Found` message for any other routes.
+
+
+
+
+## **Step 4: Serving Static Files with Correct Content-Type**
+
+We’re going to enhance the server to serve not just HTML files, but also other static files such as CSS, JavaScript, and images, with the correct content type.
+
+### **Goal**: 
+- Serve different file types like `.html`, `.css`, `.js`, `.jpg`, etc., and set the correct `Content-Type` headers for each.
+
+### **Updated Code:**
+```javascript
+// Import required modules
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+
+// Define the server port
+const PORT = 3000;
+
+// Create the server
+const server = http.createServer((req, res) => {
+    // Determine the requested file path
+    let filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
+
+    // Get the file extension to determine content type
+    const extname = path.extname(filePath);
+
+    // Map file extensions to content types
+    const contentTypeMap = {
+        '.html': 'text/html',
+        '.css': 'text/css',
+        '.js': 'application/javascript',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
+        '.json': 'application/json',
+        '.txt': 'text/plain',
+    };
+
+    // Default to 'text/html' if file type is unknown
+    const contentType = contentTypeMap[extname] || 'application/octet-stream';
+
+    // Read and serve the file
+    fs.readFile(filePath, (err, content) => {
+        if (err) {
+            if (err.code === 'ENOENT') {
+                // File not found, serve 404 page
+                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.end('<h1>404 - File Not Found</h1>');
+            } else {
+                // Server error
+                res.writeHead(500, { 'Content-Type': 'text/html' });
+                res.end('<h1>500 - Internal Server Error</h1>');
+            }
+            return;
+        }
+
+        // Serve the file with the correct content type
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(content);
+    });
+});
+
+// Start the server
+server.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
+```
+
+---
+
+### **Explanation of Changes**
+
+#### 1. **Extracting File Extension**
+   - **Code**:
+     ```javascript
+     const extname = path.extname(filePath);
+     ```
+   - **Purpose**:  
+     This retrieves the extension of the requested file. For example, if the URL is `/style.css`, this will extract `.css`.
+
+#### 2. **Mapping File Extensions to Content Types**
+   - **Code**:
+     ```javascript
+     const contentTypeMap = {
+         '.html': 'text/html',
+         '.css': 'text/css',
+         '.js': 'application/javascript',
+         '.png': 'image/png',
+         '.jpg': 'image/jpeg',
+         '.gif': 'image/gif',
+         '.svg': 'image/svg+xml',
+         '.json': 'application/json',
+         '.txt': 'text/plain',
+     };
+     ```
+   - **Purpose**:  
+     This map tells the server what content type to use for each file extension. For example:
+     - `.html` → `text/html`
+     - `.css` → `text/css`
+     - `.png` → `image/png`
+     - `.jpg` → `image/jpeg`
+
+#### 3. **Default to `application/octet-stream`**
+   - **Code**:
+     ```javascript
+     const contentType = contentTypeMap[extname] || 'application/octet-stream';
+     ```
+   - **Purpose**:  
+     If the file extension is not found in the `contentTypeMap`, the server defaults to `application/octet-stream`, which is a binary stream type. This ensures files that are not recognized still get served correctly.
+
+#### 4. **Serving the File with the Correct Content-Type**
+   - **Code**:
+     ```javascript
+     res.writeHead(200, { 'Content-Type': contentType });
+     res.end(content);
+     ```
+   - **Purpose**:  
+     The server sends a `200 OK` status code with the correct `Content-Type` based on the file extension. It then serves the content of the requested file.
+
+---
+
+### **Testing It**
+1. **Create Sample Files**:
+   - Create a sample HTML file (`index.html`):
+     ```html
+     <html>
+     <head>
+         <title>Test Page</title>
+         <link rel="stylesheet" href="style.css">
+     </head>
+     <body>
+         <h1>Hello World</h1>
+         <script src="script.js"></script>
+     </body>
+     </html>
+     ```
+   - Create a sample CSS file (`style.css`):
+     ```css
+     body {
+         font-family: Arial, sans-serif;
+         background-color: #f0f0f0;
+         text-align: center;
+     }
+     ```
+   - Create a sample JavaScript file (`script.js`):
+     ```javascript
+     console.log("JavaScript loaded!");
+     ```
+
+2. **Start the Server**:
+   - Save the code above and run it by typing `node server.js` in your terminal.
+
+3. **Test the Pages**:
+   - Open a browser and navigate to:
+     - `http://localhost:3000/` → The HTML page with styles and scripts.
+     - `http://localhost:3000/style.css` → The CSS file.
+     - `http://localhost:3000/script.js` → The JavaScript file.
+
+---
+
+### **What’s Next**
+This sets up a simple static file server. In future steps, we can:
+1. Add route handling for dynamic content.
+2. Introduce templating engines for rendering dynamic HTML.
+3. Serve more advanced resources like APIs or databases.
