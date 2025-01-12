@@ -16,9 +16,13 @@ const app = express();
 // Define the port where the server will listen
 const PORT = 3000;
 
-// Define a simple route (Get request) for the home page
+// Serve the static files from the 'public' directory
+app.use(express.static('public'));
+
+
+// Route for the homepage (index.html will be served automatically)
 app.get('/', (req, res) => {
-    res.send('<h1>Hello, world! Welcome to Express</h1>');
+    res.sendFilel(__dirname + '/public/index.html');
 });
 
 // Define another route (for about)
