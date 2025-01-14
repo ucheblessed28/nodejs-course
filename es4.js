@@ -3,8 +3,8 @@ const express = require('express');
 
 const path = require('path');
 
-// Import Mongoose for MongoDB connectivity
-const mongoose = require('mongoose');
+// // Import Mongoose for MongoDB connectivity
+// const mongoose = require('mongoose');
 
 // Import the donenv module
 const dotenv = require('dotenv');
